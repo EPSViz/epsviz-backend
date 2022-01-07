@@ -19,3 +19,4 @@ docker-compose.yml
 .env
 
 earnings.json
+data/db
