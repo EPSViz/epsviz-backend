@@ -17,3 +17,5 @@ node_modules
 
 docker-compose.yml
 .env
+
+earnings.json

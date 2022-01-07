@@ -9,6 +9,7 @@ const { rcalc } = require("./utils/rcalc");
 var R = require("r-script");
 
 const { PORT, DB_TYPE, DB_CONNECTION, REDIS_URL } = require("./constants");
+const { dbInit } = require("./db/dbInit");
 
 const app = express();
 
@@ -35,16 +36,6 @@ client.connect().then(() => {
   app.get("/test", async (req, res) => {
     res.send(JSON.stringify(await getEarnings("AAPL")));
   });
-  app.listen(PORT, () => {
-    console.log(`EPSViz listening at http://localhost:${PORT}`);
-    cron.schedule("*/10 * * * *", () => {
-      try {
-        updateEarnings();
-      } catch (err) {
-        console.log(err);
-      }
-    });
-  });
 
   app.get("/trends/:keyword", async (req, res) => {
     const trends = await getTrends(req.params.keyword);
@@ -53,18 +44,7 @@ client.connect().then(() => {
 
   app.get("/companies/:ticker", async (req, res) => {
     const companyEarnings = await getEarnings(req.params.ticker);
-    // res.send(companyEarnings);
-
-    // const result = await rcalc(companyEarnings);
-
-    rcalc(companyEarnings, function (error, result) {
-      if (error) {
-        return res.status(500).send(error);
-      }
-      return res.status(200).send(result);
-    });
-
-    // res.send(result);
+    res.send(companyEarnings);
   });
 
   app.get("/api/:ticker/:keyword", async (req, res) => {
@@ -86,5 +66,20 @@ client.connect().then(() => {
     // };
 
     // res.send(response);
+  });
+
+  app.listen(PORT, () => {
+    dbInit(async function (newInit) {
+      console.log("Done initialising DB");
+      console.log(`EPSViz listening at http://localhost:${PORT}`);
+
+      // cron.schedule("*/10 * * * *", () => {
+      //   try {
+      //     updateEarnings();
+      //   } catch (err) {
+      //     console.log(err);
+      //   }
+      // });
+    });
   });
 });

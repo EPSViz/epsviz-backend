@@ -1,39 +1,60 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const moment = require("moment-timezone");
+const { knex } = require("../db/dbLoad");
 
 const getEarnings = async (ticker) => {
-  const { data } = await axios.get(
-    `https://finance.yahoo.com/calendar/earnings?symbol=${ticker}`
-  );
+  const now = Math.round(Date.now() / 1000);
 
-  selector = await cheerio.load(data);
+  var storedEarnings = await knex("earnings")
+    .where("ticker", ticker)
+    .andWhere("lastUpdated", ">", now - 60 * 60 * 24);
 
-  var rows = [];
+  if (storedEarnings.length == 0) {
+    const { data } = await axios.get(
+      `https://finance.yahoo.com/calendar/earnings?symbol=${ticker}`
+    );
 
-  // date
-  selector("tr.simpTblRow > td:nth-child(3)").each(function (i, elm) {
-    var date = selector(this).text().substring(0, 12);
+    selector = await cheerio.load(data);
 
-    date = moment(date, "MMM D, YYYY");
+    var rows = [];
 
-    rows.push({ EPSReportDate: moment(date).format("YYYY-MM-DD") });
-  });
+    // date
+    selector("tr.simpTblRow > td:nth-child(3)").each(function (i, elm) {
+      var date = selector(this).text().substring(0, 12);
 
-  // estimate
-  selector("tr.simpTblRow > td:nth-child(4)").each(function (i, elm) {
-    rows[i]["consensusEPS"] = selector(this).text();
-  });
+      date = moment(date, "MMM D, YYYY");
 
-  // actual
-  selector("tr.simpTblRow > td:nth-child(5)").each(function (i, elm) {
-    var actual = selector(this).text();
-    if (actual == "-") {
-      rows[i]["actualEPS"] = null;
-    } else {
-      rows[i]["actualEPS"] = actual;
+      rows.push({ EPSReportDate: moment(date).format("YYYY-MM-DD") });
+    });
+
+    // estimate
+    selector("tr.simpTblRow > td:nth-child(4)").each(function (i, elm) {
+      rows[i]["consensusEPS"] = selector(this).text();
+    });
+
+    // actual
+    selector("tr.simpTblRow > td:nth-child(5)").each(function (i, elm) {
+      var actual = selector(this).text();
+      if (actual == "-") {
+        rows[i]["actualEPS"] = null;
+      } else {
+        rows[i]["actualEPS"] = actual;
+      }
+    });
+
+    for (var i = 0; i < rows.length; i++) {
+      rows[i]["ticker"] = ticker;
+      rows[i]["lastUpdated"] = now;
+
+      await knex("earnings")
+        .insert(rows[i])
+        .onConflict(["EPSReportDate", "ticker"])
+        .merge();
     }
-  });
+  } else {
+    rows = storedEarnings;
+  }
 
   return rows;
 };
