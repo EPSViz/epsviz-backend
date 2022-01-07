@@ -5,6 +5,7 @@ const cron = require("node-cron");
 const { getTrends } = require("./apis/getTrends");
 const { getEarnings } = require("./apis/getEarnings");
 const { calculate } = require("./utils/calculate");
+const { rcalc } = require("./utils/rcalc");
 
 const { PORT, DB_TYPE, DB_CONNECTION, REDIS_URL } = require("./constants");
 
@@ -65,6 +66,7 @@ client.connect().then(() => {
 
   app.get("/companies/:ticker", async (req, res) => {
     const companyEarnings = await getEarnings(req.params.ticker);
-    res.send(companyEarnings);
+    //res.send(companyEarnings);
+    res.send(rcalc(companyEarnings));
   });
 });
