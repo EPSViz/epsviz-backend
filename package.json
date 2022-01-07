@@ -22,6 +22,7 @@
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
     "r-integration": "^1.7.0",
+    "r-script": "^0.0.4",
     "redis": "^4.0.1",
     "sequelize": "^6.12.5",
     "sequelize-cli": "^6.3.0"

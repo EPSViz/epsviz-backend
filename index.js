@@ -6,6 +6,7 @@ const { getTrends } = require("./apis/getTrends");
 const { getEarnings } = require("./apis/getEarnings");
 const { calculate } = require("./utils/calculate");
 const { rcalc } = require("./utils/rcalc");
+var R = require("r-script");
 
 const { PORT, DB_TYPE, DB_CONNECTION, REDIS_URL } = require("./constants");
 
@@ -29,10 +30,10 @@ app.use(
 
 client.connect().then(() => {
   app.get("/", (req, res) => {
-    res.send("Welcome to shield-farm API!");
+    res.send("Welcome to EPSViz API!");
   });
-  app.get("/test", (req, res) => {
-    res.send(calculate("AAPL", ""));
+  app.get("/test", async (req, res) => {
+    res.send(JSON.stringify(await getEarnings("AAPL")));
   });
   app.listen(PORT, () => {
     console.log(`EPSViz listening at http://localhost:${PORT}`);
@@ -45,28 +46,45 @@ client.connect().then(() => {
     });
   });
 
-  app.get("/:keyword", async (req, res) => {
+  app.get("/trends/:keyword", async (req, res) => {
     const trends = await getTrends(req.params.keyword);
     res.send(trends);
   });
 
-  app.get("/:ticker/:keyword", async (req, res) => {
+  app.get("/companies/:ticker", async (req, res) => {
+    const companyEarnings = await getEarnings(req.params.ticker);
+    // res.send(companyEarnings);
+
+    // const result = await rcalc(companyEarnings);
+
+    rcalc(companyEarnings, function (error, result) {
+      if (error) {
+        return res.status(500).send(error);
+      }
+      return res.status(200).send(result);
+    });
+
+    // res.send(result);
+  });
+
+  app.get("/api/:ticker/:keyword", async (req, res) => {
     const companyEarnings = await getEarnings(req.params.ticker);
     const trends = await getTrends(req.params.keyword);
 
-    // divide trends to match company earnings
+    rcalc(companyEarnings, trends, function (error, result) {
+      if (error) {
+        return res.status(500).send(error);
+      }
+      return res.status(200).send(result);
+    });
 
-    const response = {
-      earnings: companyEarnings,
-      trends: trends,
-    };
+    // // divide trends to match company earnings
 
-    res.send(response);
-  });
+    // const response = {
+    //   earnings: companyEarnings,
+    //   trends: trends,
+    // };
 
-  app.get("/companies/:ticker", async (req, res) => {
-    const companyEarnings = await getEarnings(req.params.ticker);
-    //res.send(companyEarnings);
-    res.send(rcalc(companyEarnings));
+    // res.send(response);
   });
 });
