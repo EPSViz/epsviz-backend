@@ -8,7 +8,7 @@ const getTrends = async (keyword) => {
   try {
     const trends = await googleTrends.interestOverTime({
       keyword: keyword,
-      startTime: moment().subtract(1000, "days").toDate(),
+      startTime: moment().subtract(1800, "days").toDate(),
       // agent: proxyAgent,
     });
     return JSON.parse(trends);

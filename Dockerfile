@@ -19,6 +19,9 @@ RUN R -e "install.packages('dplyr', repos='https://cran.rstudio.com/')"
 RUN R -e "install.packages('tidyr', repos='https://cran.rstudio.com/')"
 RUN R -e "install.packages('rjson', repos='https://cran.rstudio.com/')"
 RUN R -e "install.packages('jsonlite', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('broom', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('anytime', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('stats', repos='https://cran.rstudio.com/')"
 
 COPY package*.json ./
 
