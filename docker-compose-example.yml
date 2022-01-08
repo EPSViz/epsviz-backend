@@ -1,0 +1,14 @@
+version: "3.5"
+
+services:
+  api:
+    restart: unless-stopped
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    # environment:
+    #   - REDIS_URL=redis://192.168.1.11:6380
+    #   - DB_TYPE=postgres
+    #   - DB_CONNECTION=postgres://shield:shieldfarm@192.168.1.11:5442/shieldfarm
+    ports:
+      - 3000:3000
