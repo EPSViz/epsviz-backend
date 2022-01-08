@@ -143,46 +143,9 @@ historicalDataFrame = function(earnings, trends) { # date (quarters), actual eps
   return(data.frame(vec.date, vec.eps, vec.sentiment))
 }
 
-#predictionReady(earnings, trends) #this is for rscript, returns true or false
+predictionReady(earnings, trends) #this is for rscript, returns true or false
 #historicalDataFrame(earnings, trends) #this is for rscript2, returns the historical data frame
 
 
-predict = function(earnings, trends) {
-  # Get prediction date
-  prediction.date = getVectorData(earnings)[4]
-  consensus.eps = getVectorData(earnings)[3]
-  # Get predictor sentiment value
-  predictor.value = as.numeric(predictionSentiment(earnings, trends)[1])
-  df.historical.data = historicalDataFrame(earnings, trends)
-  #return(df.historical.data)
-  # Separate the test data (latest quarter) from the training data
-
-  df.historical.data <- df.historical.data[!is.na(df.historical.data$vec.eps),]
-
-  # return(df.historical.data)
-
-
-
-  model <- lm(as.formula(vec.eps ~ vec.sentiment), data = df.historical.data)
-
-  #return(summary(model)$coefficients)
-  #p.value = glance(model)$p.value
-  #adj.r2 = summary(model)$r.squared #glance(model)$adj.r.squared
-
-  vec.eps <- c(NA)
-  vec.sentiment <- c(predictor.value)
-  vec.date <- c(prediction.date)
-
-  predictor <- data.frame(vec.eps,vec.sentiment,vec.date)
-  
-  result <- stats::predict(model, newdata = predictor, interval = "prediction")
-
-  lower <- result[,2][1]
-  fit <- result[,1][1]
-  upper <- result[,3][1]
-  return(cbind(prediction.date, consensus.eps, fit))
-}
-
-predict(earnings, trends) #this is for rscript3
 
 

@@ -1,5 +1,7 @@
 needs(broom)
 
+attach(input[[1]])
+
 predictionSentiment = function(earnings, trends) {
   vector.data = getVectorData(earnings)
   df.trends = trends[[1]][[1]]
@@ -102,24 +104,33 @@ historicalDataFrame = function(earnings, trends) { # date (quarters), actual eps
 predict = function(earnings, trends) {
   # Get prediction date
   prediction.date = getVectorData(earnings)[4]
+  consensus.eps = getVectorData(earnings)[3]
   # Get predictor sentiment value
   predictor.value = as.numeric(predictionSentiment(earnings, trends)[1])
   df.historical.data = historicalDataFrame(earnings, trends)
-  
   # Separate the test data (latest quarter) from the training data
 
-  model <- lm(vec.eps ~ vec.sentiment, data = df.historical.data)
+  df.historical.data <- df.historical.data[!is.na(df.historical.data$vec.eps),]
 
-  p.value <- glance(model)$p.value
-  adj.r2 <- glance(model)$adj.r.squared
 
-  result <- predict(model, newdata = predictor.value, interval = "prediction")
+  model <- stats::lm(as.formula(vec.eps ~ vec.sentiment), data = df.historical.data)
+
+  p.value = broom::glance(model)$p.value
+  adj.r2 = broom::glance(model)$adj.r.squared
+
+  vec.eps <- c(NA)
+  vec.sentiment <- c(predictor.value)
+  vec.date <- c(prediction.date)
+
+  predictor <- data.frame(vec.eps,vec.sentiment,vec.date)
+  
+  result <- stats::predict(model, newdata = predictor, interval = "prediction")
 
   lower <- result[,2][1]
   fit <- result[,1][1]
   upper <- result[,3][1]
-  return(cbind(prediction.date, p.value,adj.r2,lower,fit,upper))
+  return(cbind(prediction.date, consensus.eps, lower, fit, upper, p.value, adj.r2))
 }
 
-predict(earnings, trends)
+predict(earnings, trends) #this is for rscript3
 

@@ -5,7 +5,7 @@ const rcalc2 = async (earnings, trends, callback) => {
     .data({ earnings: earnings, trends: trends })
     .call(function (error, result) {
       if (error) {
-        console.error("ex-async throws error", error);
+        console.error("ex-async throws error", error.toString());
         return callback(err, null);
       }
       console.error("ex-async success result", result);

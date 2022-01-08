@@ -9,7 +9,7 @@ const DB_CONNECTION =
   "postgres://shield:shieldfarm@localhost:5442/shieldfarm";
 
 const PORT = process.env.PORT || 3000;
-const REDIS_URL = process.env.REDIS_URL || "redis://shield-cache:6380";
+const REDIS_URL = process.env.REDIS_URL || "redis://192.168.1.11:6380";
 
 module.exports = {
   DB_TYPE,
