@@ -1,5 +1,6 @@
 require("dotenv").config();
-const { dirname } = require("path");
+// const { dirname } = import ("path");
+import { dirname } from "path";
 
 const TORGUARD = process.env.TORGUARD || "torguard:torguard";
 

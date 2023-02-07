@@ -1,3 +1,4 @@
+library(needs)
 needs(jsonlite)
 needs(dplyr) 
 needs(tidyr)
@@ -14,22 +15,7 @@ attach(input[[1]])
 
 
 
-getVectorData = function(earnings) {
-  df.nrows <- nrow(earnings)
-  for(i in 1:df.nrows) {
-    if(!is.na(earnings[i,3])) {
-      #return(earnings[i,1])  
-      cutoff.date = earnings[i,1]
-      no.quarters = df.nrows - i + 2
-      consensus.at.predict.quarter = earnings[i-1,2]
-      prediction.date = earnings[i-1,1]
-      return(c(cutoff.date, no.quarters, consensus.at.predict.quarter,prediction.date, i)) # if is.na(consensus), then prediction not ready yet.
-      #return(c(cutoff.date, no.quarters, consensus.at.predict.quarter))
-    }
-  }
-  return("error")
-  
-}
+
 
 # aggregatetest = function(earnings, trends) {
 #   df.trends = trends[[1]][[1]]

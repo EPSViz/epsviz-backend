@@ -1,3 +1,4 @@
+library(needs)
 needs(broom)
 
 attach(input[[1]])

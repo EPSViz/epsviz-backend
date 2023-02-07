@@ -37,6 +37,7 @@ RUN R -e "install.packages('tibble', repos='https://cran.rstudio.com/')"
 RUN R -e "install.packages('tidyselect', repos='https://cran.rstudio.com/')"
 RUN R -e "install.packages('vctrs', repos='https://cran.rstudio.com/')"
 RUN R -e "install.packages('pillar', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('needs', repos='https://cran.rstudio.com/')"
 
 
 COPY package*.json ./
