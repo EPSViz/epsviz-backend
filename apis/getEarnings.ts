@@ -18,10 +18,12 @@ async function getEarnings(ticker: string) {
     i: number,
     elm: any
   ) {
-    let date = selector(this).text().substring(0, 12);
-    const newdate = moment(date, "MMM D, YYYY");
+    let date = selector(this).text(); //.substring(0, 12);
+    const newdate = moment(date, "MMM DD, YYYY, h A z");
 
-    rows.push({ EPSReportDate: moment(newdate).format("YYYY-MM-DD") });
+    rows.push({
+      EPSReportDate: moment(newdate).format("YYYY-MM-DDTHH:mm:ssZ"),
+    });
   });
 
   selector("tr.simpTblRow > td:nth-child(4)").each(function (

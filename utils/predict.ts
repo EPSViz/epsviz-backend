@@ -41,9 +41,31 @@ export function processData(
   let nextDate: Date | null = null;
   let consensusEPS: number | null = null;
 
+  const withActual = earningsData.filter(
+    (earnings) => earnings.actualEPS !== null
+  );
+  if (withActual.length === 0) {
+    return {
+      ready: false,
+      data: [],
+      predict: {
+        nextDate: null,
+        consensusEPS: null,
+        lower: null,
+      },
+    };
+  }
+  const indexOfFirstActual = earningsData.indexOf(withActual[0]);
+
+  // trim earningsData to only include actual earnings + next quarter
+  earningsData = earningsData.slice(indexOfFirstActual - 1);
+
   for (const earnings of earningsData) {
     const earningsDate = new Date(earnings.EPSReportDate);
-    if (earningsDate < today) {
+    console.log("ed", earningsDate);
+    console.log("today", today);
+
+    if (earningsDate <= today) {
       const quarter = getQuarter(earningsDate);
       let quarterTrends = 0;
       let quarterCount = 0;
@@ -59,12 +81,17 @@ export function processData(
         data.push({ x: avgTrend, y: earnings.actualEPS });
       }
     } else {
-      if (!nextDate || earningsDate < nextDate) {
+      console.log("nextDate", nextDate);
+      if (!nextDate || earningsDate <= nextDate) {
+        console.log("nextDate2", nextDate);
         nextDate = earningsDate;
         consensusEPS = earnings.consensusEPS;
       }
     }
   }
+
+  console.log("data", data);
+
   // Perform linear regression
   const xSum = data.reduce((sum, d) => sum + d.x, 0);
   const ySum = data.reduce((sum, d) => sum + d.y, 0);
